@@ -2,11 +2,11 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import json
 from datetime import datetime
+import os
 
 app = Flask(__name__)
 CORS(app)
 
-# Load database
 def load_data():
     try:
         with open("database.json", "r") as f:
@@ -35,4 +35,6 @@ def verify():
         return jsonify({"status": "fail", "reason": "Key not found"})
 
 if __name__ == "__main__":
-    app.run()
+    # THIS FIXES THE ERROR 🔥
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
