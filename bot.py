@@ -6,9 +6,11 @@ import os
 import random
 import string
 
+# Prefix ! for testing
 intents = discord.Intents.default()
 intents.members = True
-bot = commands.Bot(command_prefix="/", intents=intents)
+intents.message_content = True
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 # Load database
 def load_data():
@@ -28,7 +30,7 @@ data = load_data()
 def generate_key(length=10):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
-# /key command
+# !key command
 @bot.command()
 async def key(ctx):
     user_id = str(ctx.author.id)
@@ -44,10 +46,14 @@ async def key(ctx):
     }
     save_data(data)
 
-    await ctx.author.send(f"Your key: `{key}`\nYour HWID: `{hwid}`\nValid for 24 hours.")
-    await ctx.send("✅ Check your DM for key & HWID.")
+    # Send DM
+    try:
+        await ctx.author.send(f"Your key: `{key}`\nYour HWID: `{hwid}`\nValid for 24 hours.")
+        await ctx.send("✅ Check your DM for key & HWID.")
+    except discord.Forbidden:
+        await ctx.send(f"❌ I cannot DM you. Here is your key:\nKey: `{key}`\nHWID: `{hwid}`\nValid for 24 hours.")
 
-# /set command
+# !set command
 @bot.command()
 async def set(ctx):
     user_id = str(ctx.author.id)
@@ -61,7 +67,7 @@ async def set(ctx):
     if user_key:
         await ctx.send(f"✅ Your HWID is already set: {data['keys'][user_key]['hwid']}")
     else:
-        await ctx.send("❌ You don't have a key yet. Use `/key` first.")
+        await ctx.send("❌ You don't have a key yet. Use `!key` first.")
 
 # Run bot using environment variable
 bot.run(os.environ.get("DISCORD_BOT_TOKEN"))
